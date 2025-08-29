@@ -4,8 +4,9 @@
 
 ### Overview
 
-Workshop materials for the ARC Training Centre for Future Crops
-Development featuring the Grain Trade Australia Barley identification
+Workshop materials for the [ARC Training Centre for Future Crops
+Development](https://futurecropscentre.edu.au/) featuring the [Grain
+Trade Australia](https://graintrade.org.au/) Barley identification
 project
 
 ### Key contact
@@ -14,11 +15,12 @@ project
 
 **Lead contact details:** fonti.kar@anu.edu.au
 
-### Team
+### Contributing team
 
-**Support:** Dr. Patrick Li
+**Support:** [Dr. Patrick
+Li](https://researchportalplus.anu.edu.au/en/persons/patrick-li)
 
-**Oversee:** Dr. Emi Tanaka
+**Overee:** [Dr. Emi Tanaka](https://emitanaka.org/)
 
 ### Important dates
 
