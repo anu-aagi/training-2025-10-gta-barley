@@ -1,24 +1,19 @@
-
+---
+format: md
+output-file: README.md
+---
 
 # training-2025-10-gta-barley
 
 ### Overview
 
-Workshop materials for the ARC Training Centre for Future Crops
-Development featuring the Grain Trade Australia Barley identification
-project
+Workshop materials for the ARC Training Centre for Future Crops Development featuring the Grain Trade Australia Barley identification project
 
 ### Key contact
 
-**Lead:** Dr. Fonti Kar
+**Lead:** Dr. Fonti Kar
 
 **Lead contact details:** fonti.kar@anu.edu.au
-
-### Team
-
-**Support:** Dr. Patrick Li
-
-**Oversee:** Dr. Emi Tanaka
 
 ### Important dates
 
