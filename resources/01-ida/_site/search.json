@@ -1,0 +1,51 @@
+[
+  {
+    "objectID": "index.html#what-do-you-look-for-in-a-good-apple",
+    "href": "index.html#what-do-you-look-for-in-a-good-apple",
+    "title": "Data sniffing",
+    "section": "What do you look for in a good apple?",
+    "text": "What do you look for in a good apple?\n\n\n\n\ncolour?\nscent?\nfirmness?"
+  },
+  {
+    "objectID": "index.html#how-about-for-data",
+    "href": "index.html#how-about-for-data",
+    "title": "Data sniffing",
+    "section": "How about for data?",
+    "text": "How about for data?\n\nwell, that depends on your research question…\nbut there are some sniff tests you should do before diving in!"
+  },
+  {
+    "objectID": "index.html#data-analysis",
+    "href": "index.html#data-analysis",
+    "title": "Data sniffing",
+    "section": "Data Analysis",
+    "text": "Data Analysis\n\nData analysis is a process of cleaning, transforming, inspecting and modelling data with the aim of extracting information.\n\n\n\n\n\nExploratory data analysis\n\nEDA is about exploration and discovering unknown insights.\nFlexible, iterative, visual for discovering, identifying, or formulating hypothesis.\n\n“EDA is an attitude, a flexibility, and a reliance on display, NOT a bundle of techniques.” – Tukey (1980)\n\n\n\nConfirmatory data analysis\n\nCDA is to test specific, pre-defined hypotheses using statistical methods.\nStructured, rigorous, statistical for testing, assessing, or concluding.\nOften only when the data is from an experimental study with a proper experimental design.\n\n\n\n\n\n\nTukey, J. W. (1980) We Need Both Exploratory and Confirmatory. The American Statistician."
+  },
+  {
+    "objectID": "index.html#initial-data-analysis",
+    "href": "index.html#initial-data-analysis",
+    "title": "Data sniffing",
+    "section": "Initial Data Analysis",
+    "text": "Initial Data Analysis\n\n\nIDA is the crucial first step in analysing data, involving inspection and exploration before formal statistical analysis.\nIt helps to ensure data quality, identify potential issues, and refine the analysis plan, leading to more reliable and reproducible results.\nDifferent name is used to describe the same process, such as:\n\nChatfield (1985) as “initial examination of data”,\nCox & Snell (1981) as “preliminary data analysis”, and\nRao (1983) as “cross-examination of data”.\n\n\n\n\n\n\nChatfield (1985) The Initial Examination of Data. Journal of the Royal Statistical Society. Series A (General)\nCox & Snell (1981) Applied Statistics. London: Chapman and Hall.\nRao (1983) Optimum balance between statistical theory and application in teaching. Proc. of the First Int Conference on Teaching Statistics"
+  },
+  {
+    "objectID": "index.html#analysis-framework",
+    "href": "index.html#analysis-framework",
+    "title": "Data sniffing",
+    "section": "Analysis Framework",
+    "text": "Analysis Framework\n\n\n\n\n\nTidy data\n\nEach column is a variable.\nEach row is an observation.\nEach cell is a single value.\n\n\n\nTools\n\nGit/GitHub for version control and collaboration\nOpen-source programming languages (e.g. R and Python) for coding\nQuarto with markdown syntax for interoperable reproducible reports\n\n\n\n\n\n\n\nHuebner et al (2016) A systematic approach to initial data analysis is good research practice. The Journal of Thoracic and Cardiovascular Surgery\nHuebner et al (2018) A Contemporary Conceptual Framework for Initial Data Analysis. Observational Studies\nSteegen et al (2016) Increasing Transparency Through a Multiverse Analysis. Perspect Psychol Sci\nvan der Loo & de Jonge (2018) Statistical Data Cleaning with Applications in R.\nWickham (2014) Tidy Data. Journal of Statistical Software"
+  },
+  {
+    "objectID": "index.html#data-description",
+    "href": "index.html#data-description",
+    "title": "Data sniffing",
+    "section": "Data Description",
+    "text": "Data Description\n\n🎯 Aim to assess the structure and quality of the data\n\n\nA non-exhaustive list of things to check could include:\n\nStudying the missing data patterns\nNumerical or graphical summaries of univariate and multivariate distributions\n\nDoes the distribution of the data imply violations of assumptions for the main analysis?\nChecking if data collection method is consistent across discrete set of variables\nPlotting the data entry order across variables\n\nIdentifying the observational unit\nIf a comparative experiment,\n\nIdentify the experimental unit for every treatment factor\nBe aware of pseudo-replicates!\nDoes the treatment group have different demographic characteristics to the control group?\nDoes the experimental layout match the description match?\nIn particular, are treatments randomised?"
+  },
+  {
+    "objectID": "index.html#sanity-check-your-data",
+    "href": "index.html#sanity-check-your-data",
+    "title": "Data sniffing",
+    "section": "Sanity check your data",
+    "text": "Sanity check your data\n\n\nAlso referred to as data scrutinizing.\nUse common or domain knowledge to check if the recorded data have sensible values.\nFor example:\n\nAre positive values, e.g. height and weight, recorded as positive values with a plausible range?\nIf the data are counts, do the recorded values contain non-integer values?\nFor compositional data, do the values add up to 100% (or 1)? If not is that a measurement error or due to rounding? Or is another variable missing?\nAre data encoded correctly?\n\nUse independent or external sources (quick Google or past published articles)\nConsider if or how data were derived"
+  }
+]
