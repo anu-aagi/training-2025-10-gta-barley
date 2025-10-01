@@ -284,12 +284,22 @@ Tukey, J. W. (1980) We Need Both Exploratory and Confirmatory. _The American Sta
 
 . . . 
 
-**What is the efficacy of the ZoomAgri devices?**
+::: box
+
+<b>🎯 **What is the efficacy of the ZoomAgri devices?**</b>
+
+:::
+
+
 
 ## Key information
 
 ::: incremental
 
+We were given: 
+
+- an Excel data file, no description of meta-data
+- A report prepared by ZoomAgri showing their in-house analysis
 - 
 
 
