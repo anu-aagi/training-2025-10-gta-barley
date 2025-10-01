@@ -11,28 +11,42 @@
     "href": "index.html#how-about-for-data",
     "title": "Data sniffing",
     "section": "How about for data?",
-    "text": "How about for data?\n\nwell, that depends on your research question…\nbut there are some sniff tests you should do before diving in!"
+    "text": "How about for data?\nwell, that depends on your research question…\nbut there are some sniff tests you should do!\nIn practice, this is more formally known as initial data analysis"
   },
   {
     "objectID": "index.html#data-analysis",
     "href": "index.html#data-analysis",
     "title": "Data sniffing",
     "section": "Data Analysis",
-    "text": "Data Analysis\n\nData analysis is a process of cleaning, transforming, inspecting and modelling data with the aim of extracting information.\n\n\n\n\n\nExploratory data analysis\n\nEDA is about exploration and discovering unknown insights.\nFlexible, iterative, visual for discovering, identifying, or formulating hypothesis.\n\n“EDA is an attitude, a flexibility, and a reliance on display, NOT a bundle of techniques.” – Tukey (1980)\n\n\n\nConfirmatory data analysis\n\nCDA is to test specific, pre-defined hypotheses using statistical methods.\nStructured, rigorous, statistical for testing, assessing, or concluding.\nOften only when the data is from an experimental study with a proper experimental design.\n\n\n\n\n\n\nTukey, J. W. (1980) We Need Both Exploratory and Confirmatory. The American Statistician."
+    "text": "Data Analysis\n\nData analysis is a process of cleaning, transforming, inspecting and modelling data with the aim of addressing a question.\n\n\n\n\n\nExploratory data analysis\n\nFlexible, iterative, visual for discovering, identifying, or formulating hypothesis.\n\n\n\n\nConfirmatory data analysis\n\nStructured, rigorous, statistical for testing, assessing, or concluding.\n\n\n\n\n\n\n“EDA is an attitude, a flexibility, and a reliance on display, NOT a bundle of techniques.” – Tukey (1980)\nTukey, J. W. (1980) We Need Both Exploratory and Confirmatory. The American Statistician."
   },
   {
     "objectID": "index.html#initial-data-analysis",
     "href": "index.html#initial-data-analysis",
     "title": "Data sniffing",
     "section": "Initial Data Analysis",
-    "text": "Initial Data Analysis\n\n\nIDA is the crucial first step in analysing data, involving inspection and exploration before formal statistical analysis.\nIt helps to ensure data quality, identify potential issues, and refine the analysis plan, leading to more reliable and reproducible results.\nDifferent name is used to describe the same process, such as:\n\nChatfield (1985) as “initial examination of data”,\nCox & Snell (1981) as “preliminary data analysis”, and\nRao (1983) as “cross-examination of data”.\n\n\n\n\n\n\nChatfield (1985) The Initial Examination of Data. Journal of the Royal Statistical Society. Series A (General)\nCox & Snell (1981) Applied Statistics. London: Chapman and Hall.\nRao (1983) Optimum balance between statistical theory and application in teaching. Proc. of the First Int Conference on Teaching Statistics"
+    "text": "Initial Data Analysis\n\nData analysis is a process of cleaning, transforming, inspecting and modelling data with the aim of addressing a question.\n\n\n\n\n\nInitial data analysis\n\nInspecting, checking and exploration of data to ensure quality and understand data structure.\n\n\n\n\nConfirmatory data analysis\n\nStructured, rigorous, statistical for testing, assessing, or concluding.\n\n\n\n\n\n\n\nChatfield (1985) The Initial Examination of Data. Journal of the Royal Statistical Society. Series A (General)\nCox & Snell (1981) Applied Statistics. London: Chapman and Hall.\nRao (1983) Optimum balance between statistical theory and application in teaching. Proc. of the First Int Conference on Teaching Statistics"
   },
   {
     "objectID": "index.html#analysis-framework",
     "href": "index.html#analysis-framework",
     "title": "Data sniffing",
-    "section": "Analysis Framework",
-    "text": "Analysis Framework\n\n\n\n\n\nTidy data\n\nEach column is a variable.\nEach row is an observation.\nEach cell is a single value.\n\n\n\nTools\n\nGit/GitHub for version control and collaboration\nOpen-source programming languages (e.g. R and Python) for coding\nQuarto with markdown syntax for interoperable reproducible reports\n\n\n\n\n\n\n\nHuebner et al (2016) A systematic approach to initial data analysis is good research practice. The Journal of Thoracic and Cardiovascular Surgery\nHuebner et al (2018) A Contemporary Conceptual Framework for Initial Data Analysis. Observational Studies\nSteegen et al (2016) Increasing Transparency Through a Multiverse Analysis. Perspect Psychol Sci\nvan der Loo & de Jonge (2018) Statistical Data Cleaning with Applications in R.\nWickham (2014) Tidy Data. Journal of Statistical Software"
+    "section": "Analysis framework",
+    "text": "Analysis framework\n\n\n\n\n\nTidy data\n\nEach column is a variable.\nEach row is an observation.\nEach cell is a single value.\n\n\n\nTools\n\nGit/GitHub for version control and collaboration\nOpen-source programming languages (e.g. R and Python) for coding\nQuarto with markdown syntax for interoperable reproducible reports\n\n\n\n\n\n\n\nHuebner et al (2016) A systematic approach to initial data analysis is good research practice. The Journal of Thoracic and Cardiovascular Surgery\nHuebner et al (2018) A Contemporary Conceptual Framework for Initial Data Analysis. Observational Studies\nSteegen et al (2016) Increasing Transparency Through a Multiverse Analysis. Perspect Psychol Sci\nvan der Loo & de Jonge (2018) Statistical Data Cleaning with Applications in R.\nWickham (2014) Tidy Data. Journal of Statistical Software"
+  },
+  {
+    "objectID": "index.html#grains-trade-australia-x-zoomagri",
+    "href": "index.html#grains-trade-australia-x-zoomagri",
+    "title": "Data sniffing",
+    "section": "Grains Trade Australia x ZoomAgri",
+    "text": "Grains Trade Australia x ZoomAgri\n\n\n\n\n\n\nLong term storage of harvest from multiple farmers\nNeed solution to identify / verify grains\n\n\n\n\n\n\n\nComputer vision / machine learning tech to identify and grade agri commodities\nDevice trained for 7* varieties"
+  },
+  {
+    "objectID": "index.html#grains-trade-australia-x-zoomagri-1",
+    "href": "index.html#grains-trade-australia-x-zoomagri-1",
+    "title": "Data sniffing",
+    "section": "Grains Trade Australia x ZoomAgri",
+    "text": "Grains Trade Australia x ZoomAgri\n\n\n\n\n\n\n\n\n\nWhat is the efficacy of the ZoomAgri devices?"
   },
   {
     "objectID": "index.html#data-description",
