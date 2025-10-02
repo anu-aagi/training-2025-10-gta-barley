@@ -31,6 +31,7 @@ library(here)
 library(readxl)
 library(janitor)
 library(tidyverse)
+library(kableExtra)
 ```
 
 ```{css}
@@ -359,28 +360,148 @@ raw_data <- read_excel(here("data/data-raw/Copy of GTA Assesment Protocol Test_Z
          result_3_percent = percent_16)
   
 
+# Not sure how to fit this table nicely
 raw_data |> 
-  select(workstation, sample_code,result_1:result_3)
+  select(workstation, sample_code,result_1:result_3) |> 
+  kable()
+```
+
+::: incremental
+- `workstation` = "Device"
+- Device gives up to 3 results
+- "Others" is always in the results 3, less often in results 2
+::: 
+
+## If in doubt, count it out
+
+```{r}
+raw_data |> 
+  count(workstation)
+
+raw_data |> 
+  count(sample_code) 
+```
+
+::: incremental
+What we learned:
+
+- Identified some missing values (`NA`) in `workstation` and `sample_code`
+- See how data is encoded
+    - `GTAPure` prefix for pure samples
+    - `GTAMix` prefix for admixed samples
+- Found interesting values e.g. `GTAPure10 - Repeat1,2,3`, `GTABottler`, `GTACyclops`
+
+Analysis plan:
+
+- Excluding missing values
+- Handle interesting values 
+    - Exclude `GTABottler`, `GTACyclops`
+    - Exclude `Mino - not done` 
+    - Consolidate `GTAPure10 - Repeat1,2,3`
+::: 
+
+## Drop dead weight: constant values and redundancy
+
+Variables that are not contributing any information: 
+  - Share same values as another variable
+  - Have a constant value
+  - Not relevant to key question e.g. dates
+
+```{r}
+raw_data_precursory_clean |> 
+  janitor::get_one_to_one() 
+
+raw_data |> 
+  janitor::remove_constant()
+
+raw_data_precursory_clean |> 
+  select(-c(pc_id, s_n, ends_with("date")))
+```
+
+## Cursory clean from IDA
+
+```{r}
+raw_data_cursory_clean <- raw_data |> 
+  drop_na(workstation, sample_code) |>
+  filter(str_detect(sample_code, "Mix|Pure")) |> 
+  mutate(sample_code = 
+           case_when(
+             str_detect(sample_code, "Repeat") ~ "GTAPure10",
+             .default = sample_code
+                      ),
+         ) |> 
+  janitor::remove_constant() |> 
+  select(-c(pc_id, s_n, ends_with("date")))
+```
+
+## Don't be afraid to go digging 🕵️
+
+What is `classified_seeds`? 
+
+{{< video https://youtu.be/25KTTGTr08o >}}
+
+::: incremental
+What we learned:
+
+- An unknown amount of seeds are added to the device
+- Some seeds are deemed inadequate by the machine and are "discarded" 
+- The remaining seeds are recorded as `classified_seeds`
+- Number of seeds is an easier variable to use compared to percentages/proportions
+::: 
+
+## 
+
+## Make it tidy
+
+Humans like to record data in a "wide" format, R likes to work with data long format
+
+```{r}
+gta_tidy <- raw_data_cursory_clean |> 
+  mutate(obs_id = 1:n()) |> 
+  pivot_longer(cols = c(result_1, result_2, result_3),
+               values_to = "variety",
+               names_to = "result") |> 
+  pivot_longer(cols = starts_with("result_"),
+               names_to = "result_percent",
+               values_to = "percent") |> 
+  filter(result == str_remove(result_percent, "_percent")) |> 
+  mutate(result_top = str_remove(result, "result_")) |> 
+  select(-result, -result_percent)  |> 
+  filter(!is.na(variety))
+
+gta_tidy
+```
+
+```{r}
+# add varieties with zero percent -------------------------------------------------
+varieties <- c("Planet", "Spartacus CL", "Westminster", "Bass", "Maximus CL", 
+               "La Trobe", "Commodus CL")
+varieties_zero <- expand_grid(variety = varieties, percent = 0, obs_id = unique(gta_tidy$obs_id))
+
+missing_zeroes <- varieties_zero |> 
+  anti_join(select(gta_tidy, variety, percent, starts_with("result"), obs_id), by = c("obs_id", "variety"))
+
+input <- bind_rows(gta_tidy, missing_zeroes) |> 
+  arrange(obs_id) |> 
+  fill(-result_top)
 ```
 
 
 
-  
-::: incremental
+
+::: aside
+Cite Tidy data
+:::
 
 
+## Seeing is believing: IDA with data visualisations
 
-  
+**Histograms by sample**
 
-::: 
+```{r}
 
+```
 
-
-
-
-## 
-
-- 
 
 
 ## Data Description {.scrollable}
