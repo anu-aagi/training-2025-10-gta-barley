@@ -66,6 +66,11 @@ library(tidyverse)
   padding: 20px;
 }
 
+.reveal pre.sourceCode code {
+  /* height: 500px; */
+  max-height: 1000px;
+}
+
 ```
 
 - colour?
@@ -338,15 +343,24 @@ Be skeptical, _very skeptical_ 🧐
 
 ## Get the lay of the land 👀
 
-{{< video resources/01-ida/images/data-excel-quick-look.mp4 >}}
+![](images/data-excel-quick-look.mp4){width=150%}
+
+## Get the lay of the land 👀
 
 
 ```{r}
+#| code-fold: true
 #| echo: true
 # Data
-raw_data <- read_excel(here("data/data-raw/Copy of GTA Assesment Protocol Test_Zoomagri_ShrdMrsdn.xlsx"), sheet = "Clean") |> clean_names()
+raw_data <- read_excel(here("data/data-raw/Copy of GTA Assesment Protocol Test_Zoomagri_ShrdMrsdn.xlsx"), sheet = "Clean") |> 
+  clean_names() |> # Turn all column names to lower, snakecase
+  rename(result_1_percent = percent_12, # Give percent results a more relevant name
+         result_2_percent = percent_14,
+         result_3_percent = percent_16)
+  
 
-raw_data
+raw_data |> 
+  select(workstation, sample_code,result_1:result_3)
 ```
 
 
