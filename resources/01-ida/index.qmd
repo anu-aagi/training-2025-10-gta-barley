@@ -18,9 +18,20 @@ format:
     auto-stretch: false
     html-math-method: katex
     css: [/assets/tachyons-addon.css]
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## What do you look for in a [good apple]{.highlight}?
+
+```{r setup}
+#| include: false
+# R packages
+library(here)
+library(readxl)
+library(janitor)
+library(tidyverse)
+```
 
 ```{css}
 .red {
@@ -170,7 +181,7 @@ Tukey, J. W. (1980) We Need Both Exploratory and Confirmatory. _The American Sta
 ::: {.columns}
 ::: {.column width="70%"}
 
-![](images/ida-framework.jpg)
+![](images/ida-framework-simplified.png){width=200%}
 
 :::
 
@@ -184,16 +195,6 @@ Tukey, J. W. (1980) We Need Both Exploratory and Confirmatory. _The American Sta
 1. Each column is a variable.
 2. Each row is an observation.
 3. Each cell is a single value.
-
-:::
-
-::: box
-
-**Tools**
-
-- **Git/GitHub** for version control and collaboration
-- Open-source programming languages (e.g. **R** and **Python**) for coding
-- **Quarto** with **markdown syntax** for interoperable reproducible reports
 
 :::
 
@@ -257,7 +258,7 @@ Tukey, J. W. (1980) We Need Both Exploratory and Confirmatory. _The American Sta
 
 :::
 
-## Grains Trade Australia x ZoomAgri
+## Grains Trade Australia x ZoomAgri 🌾🤖
 
 
 ::: {.columns}
@@ -277,7 +278,6 @@ Tukey, J. W. (1980) We Need Both Exploratory and Confirmatory. _The American Sta
 ![](images/zoomagri-device.jpg)
 
 
-
 :::
 
 :::
@@ -286,26 +286,87 @@ Tukey, J. W. (1980) We Need Both Exploratory and Confirmatory. _The American Sta
 
 ::: box
 
-<b>🎯 **What is the efficacy of the ZoomAgri devices?**</b>
+<b>🎯 **What is the efficacy of the ZoomAgri devices in detecting the correct barley varietal(s)?**</b>
 
 :::
 
 
 
-## Key information
+## Grains Trade Australia x ZoomAgri 🌾🤖
+
+::: box
+
+<b>🎯 **What is the efficacy of the ZoomAgri devices in detecting the correct barley varietal(s)?**</b>
+
+:::
 
 ::: incremental
 
 We were given: 
 
-- an Excel data file, no description of meta-data
-- A report prepared by ZoomAgri showing their in-house analysis
-- 
+- an Excel [data]() file
+- A [report]() prepared by ZoomAgri describing their in-house methods and analysis
 
+::: 
+
+Be skeptical, _very skeptical_ 🧐
+
+
+## ZoomAgri methods 🤖
+
+- 10 devices
+- 7 barley varietals
+- 24 samples
+  - 12 pure samples (single variety)
+  - 12 admixed samples (two varieties in different proportions)
+
+::: {.columns}
+::: {.column width="50%"}
+
+![](images/samples-pure.png)
+
+
+:::
+
+::: {.column width="50%"}
+
+![](images/samples-admix.png)
+
+:::
+
+:::
+
+## Get the lay of the land 👀
+
+{{< video resources/01-ida/images/data-excel-quick-look.mp4 >}}
+
+
+```{r}
+#| echo: true
+# Data
+raw_data <- read_excel(here("data/data-raw/Copy of GTA Assesment Protocol Test_Zoomagri_ShrdMrsdn.xlsx"), sheet = "Clean") |> clean_names()
+
+raw_data
+```
+
+
+
+  
+::: incremental
+
+
+
+  
 
 ::: 
 
 
+
+
+
+## 
+
+- 
 
 
 ## Data Description {.scrollable}

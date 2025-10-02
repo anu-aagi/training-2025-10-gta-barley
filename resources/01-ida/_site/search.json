@@ -32,7 +32,7 @@
     "href": "index.html#analysis-framework",
     "title": "Data sniffing",
     "section": "Analysis framework",
-    "text": "Analysis framework\n\n\n\n\n\nTidy data\n\nEach column is a variable.\nEach row is an observation.\nEach cell is a single value.\n\n\n\nTools\n\nGit/GitHub for version control and collaboration\nOpen-source programming languages (e.g. R and Python) for coding\nQuarto with markdown syntax for interoperable reproducible reports\n\n\n\n\n\n\n\nHuebner et al (2016) A systematic approach to initial data analysis is good research practice. The Journal of Thoracic and Cardiovascular Surgery\nHuebner et al (2018) A Contemporary Conceptual Framework for Initial Data Analysis. Observational Studies\nSteegen et al (2016) Increasing Transparency Through a Multiverse Analysis. Perspect Psychol Sci\nvan der Loo & de Jonge (2018) Statistical Data Cleaning with Applications in R.\nWickham (2014) Tidy Data. Journal of Statistical Software"
+    "text": "Analysis framework\n\n\n\n\n\nTidy data\n\nEach column is a variable.\nEach row is an observation.\nEach cell is a single value.\n\n\n\n\n\n\n\nHuebner et al (2016) A systematic approach to initial data analysis is good research practice. The Journal of Thoracic and Cardiovascular Surgery\nHuebner et al (2018) A Contemporary Conceptual Framework for Initial Data Analysis. Observational Studies\nSteegen et al (2016) Increasing Transparency Through a Multiverse Analysis. Perspect Psychol Sci\nvan der Loo & de Jonge (2018) Statistical Data Cleaning with Applications in R.\nWickham (2014) Tidy Data. Journal of Statistical Software"
   },
   {
     "objectID": "index.html#grains-trade-australia-x-zoomagri",
@@ -45,15 +45,29 @@
     "objectID": "index.html#grains-trade-australia-x-zoomagri-1",
     "href": "index.html#grains-trade-australia-x-zoomagri-1",
     "title": "Data sniffing",
-    "section": "Grains Trade Australia x ZoomAgri",
-    "text": "Grains Trade Australia x ZoomAgri\n\n\n\n\n\n\n\n\n\n\n🎯 What is the efficacy of the ZoomAgri devices?"
+    "section": "Grains Trade Australia x ZoomAgri 🌾🤖",
+    "text": "Grains Trade Australia x ZoomAgri 🌾🤖\n\n\n\n\n\n\n\n\n\n\n🎯 What is the efficacy of the ZoomAgri devices in detecting the correct barley varietal(s)?"
   },
   {
-    "objectID": "index.html#key-information",
-    "href": "index.html#key-information",
+    "objectID": "index.html#grains-trade-australia-x-zoomagri-2",
+    "href": "index.html#grains-trade-australia-x-zoomagri-2",
     "title": "Data sniffing",
-    "section": "Key information",
-    "text": "Key information\n\nWe were given:\n\nan Excel data file, no description of meta-data\nA report prepared by ZoomAgri showing their in-house analysis"
+    "section": "Grains Trade Australia x ZoomAgri 🌾🤖",
+    "text": "Grains Trade Australia x ZoomAgri 🌾🤖\n\n🎯 What is the efficacy of the ZoomAgri devices in detecting the correct barley varietal(s)?\n\n\nWe were given:\n\nan Excel data file\nA report prepared by ZoomAgri describing their in-house methods and analysis\n\n\nBe skeptical, very skeptical 🧐"
+  },
+  {
+    "objectID": "index.html#zoomagri-methods",
+    "href": "index.html#zoomagri-methods",
+    "title": "Data sniffing",
+    "section": "ZoomAgri methods 🤖",
+    "text": "ZoomAgri methods 🤖\n\n10 devices\n7 barley varietals\n24 samples\n\n12 pure samples (single variety)\n12 admixed samples (two varieties in different proportions)"
+  },
+  {
+    "objectID": "index.html#get-the-lay-of-the-land",
+    "href": "index.html#get-the-lay-of-the-land",
+    "title": "Data sniffing",
+    "section": "Get the lay of the land 👀",
+    "text": "Get the lay of the land 👀\n\n\n# Data\nraw_data &lt;- read_excel(here(\"data/data-raw/Copy of GTA Assesment Protocol Test_Zoomagri_ShrdMrsdn.xlsx\"), sheet = \"Clean\") |&gt; clean_names()\n\nraw_data\n\n# A tibble: 305 × 16\n   workstation pc_id s_n    analysis_id analysis_date       synchronization_date\n   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;       &lt;dttm&gt;              &lt;dttm&gt;              \n 1 Beulah        348 NXAT2… 198         2025-02-26 10:49:32 2025-02-25 23:50:26 \n 2 Beulah        348 NXAT2… 196         2025-02-26 10:28:47 2025-02-25 23:30:02 \n 3 Beulah        348 NXAT2… 194         2025-02-26 09:59:54 2025-02-25 23:01:15 \n 4 Beulah        348 NXAT2… 200         2025-02-26 11:39:56 2025-02-26 00:41:11 \n 5 Beulah        348 NXAT2… 208         2025-02-26 14:07:10 2025-02-26 03:08:12 \n 6 Beulah        348 NXAT2… 209         2025-02-26 14:15:51 2025-02-26 03:17:05 \n 7 Beulah        348 NXAT2… 210         2025-02-26 14:29:31 2025-02-26 03:30:41 \n 8 Beulah        348 NXAT2… 223         2025-02-27 09:45:00 2025-02-26 22:46:00 \n 9 Beulah        348 NXAT2… 201         2025-02-26 11:50:07 2025-02-26 00:51:07 \n10 Beulah        348 NXAT2… 202         2025-02-26 12:12:31 2025-02-26 01:13:36 \n# ℹ 295 more rows\n# ℹ 10 more variables: sample_code &lt;chr&gt;, number_samples &lt;dbl&gt;,\n#   classified_seeds &lt;dbl&gt;, expected_result &lt;chr&gt;, result_1 &lt;chr&gt;,\n#   percent_12 &lt;dbl&gt;, result_2 &lt;chr&gt;, percent_14 &lt;dbl&gt;, result_3 &lt;chr&gt;,\n#   percent_16 &lt;dbl&gt;"
   },
   {
     "objectID": "index.html#data-description",
