@@ -104,7 +104,7 @@ In practice, this is more formally known as [initial data analysis]{.highlight}
 
 ::: box
 
-**Exploratory data analysis**
+**Exploratory**
 
 - Flexible, iterative, visual for discovering, identifying, or formulating hypothesis.
 
@@ -118,7 +118,7 @@ In practice, this is more formally known as [initial data analysis]{.highlight}
 
 ::: box
 
-**Confirmatory data analysis**
+**Confirmatory**
 
 - Structured, rigorous, statistical for testing, assessing, or concluding.
 
@@ -152,7 +152,18 @@ Tukey, J. W. (1980) We Need Both Exploratory and Confirmatory. _The American Sta
 
 **Initial data analysis**
   
-- Inspecting, checking and exploration of data to ensure quality and understand data structure.
+- Inspecting, checking **and exploration** of data to ensure quality and understand data structure.
+
+  
+:::
+
+<!-- Not sure how to set the width of the box to be smaller than the IDA one -->
+
+::: box
+
+**Exploratory**
+
+- Flexible, iterative, visual for discovering, identifying, or formulating hypothesis.
 
   
 :::
@@ -163,7 +174,7 @@ Tukey, J. W. (1980) We Need Both Exploratory and Confirmatory. _The American Sta
 
 ::: box
 
-**Confirmatory data analysis**
+**Confirmatory**
 
 - Structured, rigorous, statistical for testing, assessing, or concluding.
   
@@ -292,7 +303,7 @@ Tukey, J. W. (1980) We Need Both Exploratory and Confirmatory. _The American Sta
 
 ::: box
 
-<b>🎯 **What is the efficacy of the ZoomAgri devices in detecting the correct barley varietal(s)?**</b>
+<b>🎯 **What is the efficacy and consistency of the ZoomAgri devices in detecting the correct barley varietal(s)?**</b>
 
 :::
 
@@ -302,7 +313,7 @@ Tukey, J. W. (1980) We Need Both Exploratory and Confirmatory. _The American Sta
 
 ::: box
 
-<b>🎯 **What is the efficacy of the ZoomAgri devices in detecting the correct barley varietal(s)?**</b>
+<b>🎯 **What is the efficacy and consistency of the ZoomAgri devices in detecting the correct barley varietal(s)?**</b>
 
 :::
 
@@ -342,9 +353,33 @@ Be skeptical, _very skeptical_ 🧐
 
 :::
 
+## Goal of IDA: Data Description {.scrollable}
+
+::: box
+
+<b>🎯 Aim to assess the structure and quality of the data</b>
+
+:::
+
+- A non-exhaustive list of things to check could include:
+  - Studying the **missing data** patterns 
+  - **Numerical or graphical summaries** of univariate and multivariate distributions
+    - Does the distribution of the data imply violations of assumptions for the main analysis?
+    - Checking if data collection method is consistent across discrete set of variables
+    - Plotting the data entry order across variables 
+  - Identifying the **observational unit**
+  - If a comparative experiment, 
+    - Identify the **experimental unit** for every treatment factor
+    - Be aware of **pseudo-replicates**!
+    - Does the treatment group have different demographic characteristics to the control group?
+    - Does the experimental layout match the description match? 
+    - In particular, are treatments randomised?
+
 ## Get the lay of the land 👀
 
 ![](images/data-excel-quick-look.mp4){width=150%}
+
+
 
 ## Get the lay of the land 👀
 
@@ -373,6 +408,9 @@ raw_data |>
 ::: 
 
 ## If in doubt, count it out
+
+- Verify design 
+- Identify observation unit <!--What is the smallest independent unit? Evaluation for each sample for a given device?  -->
 
 ```{r}
 raw_data |> 
@@ -408,13 +446,13 @@ Variables that are not contributing any information:
   - Not relevant to key question e.g. dates
 
 ```{r}
-raw_data_precursory_clean |> 
+raw_data |> 
   janitor::get_one_to_one() 
 
 raw_data |> 
   janitor::remove_constant()
 
-raw_data_precursory_clean |> 
+raw_data |> 
   select(-c(pc_id, s_n, ends_with("date")))
 ```
 
@@ -449,8 +487,6 @@ What we learned:
 - Number of seeds is an easier variable to use compared to percentages/proportions
 ::: 
 
-## 
-
 ## Make it tidy
 
 Humans like to record data in a "wide" format, R likes to work with data long format
@@ -473,59 +509,17 @@ gta_tidy
 ```
 
 ```{r}
-# add varieties with zero percent -------------------------------------------------
-varieties <- c("Planet", "Spartacus CL", "Westminster", "Bass", "Maximus CL", 
-               "La Trobe", "Commodus CL")
-varieties_zero <- expand_grid(variety = varieties, percent = 0, obs_id = unique(gta_tidy$obs_id))
+#| eval: false
+# Add code to make classified seeds to predicted and observed seeds 
 
-missing_zeroes <- varieties_zero |> 
-  anti_join(select(gta_tidy, variety, percent, starts_with("result"), obs_id), by = c("obs_id", "variety"))
-
-input <- bind_rows(gta_tidy, missing_zeroes) |> 
-  arrange(obs_id) |> 
-  fill(-result_top)
+gta_input <- gta_tidy |> 
+   mutate(predicted_seeds = round(percent/100 * classified_seeds),
+         expected_seeds = round(percent_truth/100 * classified_seeds),
+         sample_type = case_when(str_detect(sample_code, "Pure") ~ "Pure",
+                                 str_detect(sample_code, "Mix") ~ "Mix",
+                                 .default = "Other"),
+         obs_id = as.character(obs_id)) 
 ```
-
-
-
-
-::: aside
-Cite Tidy data
-:::
-
-
-## Seeing is believing: IDA with data visualisations
-
-**Histograms by sample**
-
-```{r}
-
-```
-
-
-
-## Data Description {.scrollable}
-
-::: box
-
-<b>🎯 Aim to assess the structure and quality of the data</b>
-
-:::
-
-- A non-exhaustive list of things to check could include:
-  - Studying the **missing data** patterns 
-  - **Numerical or graphical summaries** of univariate and multivariate distributions
-    - Does the distribution of the data imply violations of assumptions for the main analysis?
-    - Checking if data collection method is consistent across discrete set of variables
-    - Plotting the data entry order across variables 
-  - Identifying the **observational unit**
-  - If a comparative experiment, 
-    - Identify the **experimental unit** for every treatment factor
-    - Be aware of **pseudo-replicates**!
-    - Does the treatment group have different demographic characteristics to the control group?
-    - Does the experimental layout match the description match? 
-    - In particular, are treatments randomised?
-
 
 
 ## Sanity check your data 
@@ -543,5 +537,41 @@ Cite Tidy data
 - Consider if or how [**_data were derived_**]{.highlight}
 
 :::
+
+```{r}
+#| eval: false
+glimpse(gta_input)
+```
+
+
+## Seeing is believing: IDA with data visualisations
+
+<!-- Go through these and talk about insights learned -->
+
+**Check distributions - histogram of classified seeds and predicted seeds**
+
+
+**Predicted percentages by device and sample**
+
+```{r}
+
+```
+
+**Number of classified seeds by device and sample**
+
+```{r}
+
+```
+
+## Summary IDA: 
+
+- Purpose of IDA
+- Have question in mind
+- Get creative 
+
+
+
+
+
 
 
