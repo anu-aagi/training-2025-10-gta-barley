@@ -1,0 +1,369 @@
+---
+title: "Training session code: Future Crops x GTA"
+format: html
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+### Packages you need
+
+```{r}
+# R packages
+library(here)
+library(readxl)
+library(janitor)
+library(tidyverse)
+```
+
+### Load raw data
+
+```{r}
+# Load data
+raw_data <- read_excel(here("data/data-raw/Copy of GTA Assesment Protocol Test_Zoomagri_ShrdMrsdn.xlsx"), sheet = "Clean") |> 
+  clean_names() |> # Turn all column names to lower, snake case
+  rename(result_1_percent = percent_12, # Give percent results a more relevant name
+         result_2_percent = percent_14,
+         result_3_percent = percent_16)
+```
+
+### If in doubt, count it out
+
+```{r}
+raw_data |> 
+  count(workstation)
+
+raw_data |> 
+  count(sample_code) |> 
+  print(n = 50)
+
+raw_data_cursory_clean <- raw_data |> 
+  drop_na(workstation, sample_code) |> # Exclude NA in workstation and sample code
+  filter(str_detect(sample_code, "Mix|Pure")) |>  # Retain relevant analyses
+  mutate(sample_code =  # Collapse the repeats from GTAPure10
+           case_when(
+             str_detect(sample_code, "Repeat") ~ "GTAPure10",
+             .default = sample_code
+                      ),
+         ) 
+
+
+raw_data_cursory_clean |> 
+  tabyl(workstation, sample_code) |> 
+  tibble()
+```
+
+### Drop dead weight
+
+```{r}
+raw_data_cursory_clean |> 
+  janitor::get_one_to_one() 
+
+raw_data_cursory_clean |> 
+  janitor::remove_constant(quiet = FALSE)
+
+raw_data_cursory_clean |> 
+  count(number_samples, expected_result) 
+
+raw_data_drop_dead_weight <- raw_data_cursory_clean |> 
+  janitor::remove_constant(quiet = FALSE) |>  # Remove variables that are not adding information
+  select(-c(pc_id, s_n, analysis_id, ends_with("date"))) # Retain the key variables I need
+```
+
+
+### Take and make what you need
+
+```{r}
+raw_data_tidy <- raw_data_drop_dead_weight |> 
+  mutate(obs_id = 1:n()) |> 
+  pivot_longer(cols = c(result_1, result_2, result_3),
+               values_to = "variety",
+               names_to = "result") |> 
+  pivot_longer(cols = starts_with("result_"),
+               names_to = "result_percent",
+               values_to = "percent") |> 
+  filter(result == str_remove(result_percent, "_percent")) |> 
+  mutate(result_top = str_remove(result, "result_")) |> 
+  select(-result, -result_percent)  |> 
+  filter(!is.na(variety)) 
+
+raw_data_tidy |> 
+  View()
+```
+
+```{r}
+# Add in missing varieties where their percentage would be 0
+varieties <- c("Planet", "Spartacus CL", "Westminster", "Bass", "Maximus CL", 
+               "La Trobe", "Commodus CL")
+
+# Create a zero dataframe for all varieties
+varieties_zero <- expand_grid(variety = varieties, percent = 0, obs_id = unique(raw_data_tidy$obs_id))
+
+# Find the instances where they are missing zero and for which variety
+missing_zeroes <- varieties_zero |> 
+  anti_join(select(raw_data_tidy, variety, percent, starts_with("result"), obs_id), by = c("obs_id", "variety"))
+
+# Join these onto the original tidy data and sort my observation id (smallest to largest)
+gta_input <- bind_rows(raw_data_tidy, missing_zeroes) |> 
+  arrange(obs_id) |> 
+  fill(-result_top)
+```
+
+```{r}
+# Add in the 'truth' expected percentages
+truth <- tribble(~sample_code, ~variety, ~percent_truth,
+                 "GTAPure1", "Bass", 100,
+                 "GTAPure2", "La Trobe", 100,
+                 "GTAPure3", "Maximus CL", 100,
+                 "GTAPure4", "Commodus CL", 100,
+                 "GTAPure5", "Spartacus CL", 100,
+                 "GTAPure6", "Westminster", 100,
+                 "GTAPure7", "Planet", 100,
+                 "GTAPure8", "Bass", 100,
+                 "GTAPure9", "La Trobe", 100,
+                 "GTAPure10", "Maximus CL", 100,
+                 "GTAPure11", "Commodus CL", 100,
+                 "GTAPure12", "Spartacus CL", 100,
+                 "GTAMix1", "Bass", 85,
+                 "GTAMix1", "Maximus CL", 15,
+                 "GTAMix2", "Planet", 85,
+                 "GTAMix2", "Bass", 15,
+                 "GTAMix3", "Spartacus CL", 80,
+                 "GTAMix3", "Bass", 20,
+                 "GTAMix4", "La Trobe", 80,
+                 "GTAMix4", "Maximus CL", 20,
+                 "GTAMix5", "La Trobe", 75,
+                 "GTAMix5", "Planet", 25,
+                 "GTAMix6", "Maximus CL", 75,
+                 "GTAMix6", "Planet", 25,
+                 "GTAMix7", "Spartacus CL", 70,
+                 "GTAMix7", "Planet", 30,
+                 "GTAMix8", "Planet", 70,
+                 "GTAMix8", "Maximus CL", 30,
+                 "GTAMix9", "Bass", 65,
+                 "GTAMix9", "La Trobe", 35,
+                 "GTAMix10", "Maximus CL", 65,
+                 "GTAMix10", "Bass", 35,
+                 "GTAMix11", "Maximus CL", 60,
+                 "GTAMix11", "La Trobe", 40,
+                 "GTAMix12", "Planet", 50,
+                 "GTAMix12", "Spartacus CL", 50)
+
+
+# Left join the truth to the recorded data
+gta_with_expected_percent <- gta_input |> 
+  left_join(truth, by = c("variety", "sample_code")) |> 
+  mutate(percent_truth = ifelse(is.na(percent_truth) & sample_code %in% truth$sample_code, 0, percent_truth)) |>  # Set percent truth to 0 if NA
+  relocate(percent_truth, .after = percent) # Move column next to percent
+
+gta_with_expected_percent |> 
+  View()
+```
+
+```{r}
+gta_valid <- gta_with_expected_percent |> 
+  mutate(predicted_seeds = round(percent/100 * classified_seeds),
+         expected_seeds = round(percent_truth/100 * classified_seeds), 
+         sample_type = case_when(str_detect(sample_code, "Pure") ~ "Pure", # Two level variable denoting Pure or Mix
+                                 str_detect(sample_code, "Mix") ~ "Mix",
+                                 .default = "Other"),
+         obs_id = as.character(obs_id)) |> 
+  rename(predicted_percent = percent,  # Rename variables to more relevant to experimental protocol
+         expected_percent = percent_truth) |> 
+  mutate(variety = fct_relevel(variety, "Others", after = Inf),
+         raw_sample_code = sample_code,
+         sample_code = factor(sample_code, levels = unique(truth$sample_code)))
+
+gta_valid |> 
+  View()
+```
+
+### Explore your question with visuals
+
+
+```{r setup}
+#| message: false
+library(tidyverse)
+library(kableExtra)
+theme_set(theme_bw(base_size = 14))
+gta_input <- readRDS(here::here("data/data-input/gta-input.rds"))
+gta_truth <- readRDS(here::here("data/data-input/gta-truth.rds"))
+gta_valid <- readRDS(here::here("data/data-valid/gta-valid.rds")) 
+gta_valid_glmm <- readRDS(here::here("data/data-valid/gta-valid-glmm.rds"))
+gta_valid_classic <- readRDS(here::here("data/data-valid/gta-valid-classic.rds"))
+test_singles <- readRDS(here::here("outputs/stats/test-singles.rds"))
+test_samples <- test_singles |> 
+  mutate(sample_code = factor(sample_code,
+                              levels = unique(gta_truth$sample_code))) |> 
+  group_by(sample_type, sample_code) |> 
+  summarise(x = sum(x),
+            df = sum(df)) |> 
+  mutate(pval = 1 - pchisq(x, df)) |> 
+  ungroup()
+
+variety2color <- set_names(colorspace::qualitative_hcl(7),
+                           sort(unique(gta_truth$variety)))
+
+# forget alternate colors for pc id 
+pc2color <- set_names(rep(c("black", "black"), length.out = 10),
+                      unique(arrange(gta_input, obs_id)$pc_id))
+
+signif_code <- function(pval) {
+  case_when(pval < 0.001 ~ "***",
+            pval < 0.01 ~ "**",
+            pval < 0.05 ~ "*",
+            pval < 0.1 ~ ".",
+            .default = "")
+}
+
+workstation_pcid <- gta_input |> 
+  distinct(workstation, pc_id) |> 
+  mutate(pc_label = glue::glue("{workstation} ({pc_id})"))
+
+sample2id <- gta_input |> 
+  distinct(obs_id, pc_id) |> 
+  left_join(test_singles, by = join_by(obs_id)) |> 
+  rowwise() |> 
+  mutate(pc = factor(pc_id, 
+                     levels = names(pc2color),
+                     labels = glue::glue("<span style='color:{pc2color[as.character(pc_id)]}'>{signif_code(pval)}{pc_id}</span>")
+                      )) |> 
+  # not sure but level number at the end 
+  mutate(pc = str_remove(pc, "[0-9]+$")) |> 
+  ungroup()
+
+gta_truth_labels <- gta_truth |> 
+  summarise(label = str_c("<b>", unique(sample_code), "</b><br>", str_c(glue::glue("<b style='color:{variety2color[variety]}'>{percent_truth}</b>"), collapse = " ")),
+            .by = sample_code) |> 
+  left_join(test_samples, by = join_by(sample_code))
+
+
+gta_valid <- gta_valid |>
+  left_join(gta_truth_labels, by = c("sample_code", "sample_type")) |> 
+  mutate(sample_code = factor(sample_code, 
+                              levels = gta_truth_labels$sample_code,
+                              labels = str_c(gta_truth_labels$label, " ",
+                                             signif_code(gta_truth_labels$pval)))) |> 
+  mutate(variety = fct_relevel(variety, "Others", after = Inf))
+```
+
+```{r}
+gta_valid |> 
+  filter(!is.na(result_top)) |> 
+  arrange(workstation) |> 
+  ggplot(aes(result_top, obs_id)) +
+  geom_tile(aes(fill = variety), 
+            linewidth = 0.7, color = "black") +
+  geom_text(aes(label = predicted_percent), hjust = 1, nudge_x = 0.4) +
+  facet_wrap(~sample_code, scale = "free_y", ncol = 6) +
+  theme(#axis.text.y = element_blank(),
+        axis.ticks.length.y = unit(0, "mm"),
+        axis.text.y = ggtext::element_markdown(),
+        panel.grid = element_blank(),
+        strip.background = element_rect(linewidth = 1.2),
+        panel.border = element_rect(linewidth = 1.2),
+        strip.text = ggtext::element_markdown(lineheight = 1.2),
+        legend.position = "bottom",
+        legend.title.position = "left") +
+  scale_fill_manual(values = c(colorspace::qualitative_hcl(7), "darkgrey")) +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0),
+                   breaks = sample2id$obs_id,
+                   labels = sample2id$pc) + 
+  labs(y = "Device ID", x = "Top Result", fill = "Variety", alpha = "Predicted percentage") 
+```
+
+#### Efficacy in identification and consistency across devices
+
+```{r}
+# Pure sample
+gta_valid |> 
+  filter(sample_code == "GTAPure6") |> 
+  select(workstation, sample_code, obs_id, variety, ends_with("percent"), result_top) |> 
+  pivot_longer(ends_with("percent"), 
+               names_to = "result_type",
+               values_to = "percentage"
+               ) |> 
+  mutate(result_type = str_remove(result_type, "_percent")) |> 
+  ggplot(aes(result_type, percentage, fill=variety)) +
+  geom_bar(position="stack", stat="identity") +
+  facet_wrap(~workstation) + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1))
+  )
+
+
+# Admixed samples
+gta_valid |> 
+  filter(sample_code == "GTAMix4") |> 
+  select(workstation, sample_code, obs_id, variety, ends_with("percent"), result_top) |> 
+  pivot_longer(ends_with("percent"), 
+               names_to = "result_type",
+               values_to = "percentage"
+               ) |> 
+  mutate(result_type = str_remove(result_type, "_percent")) |> 
+  ggplot(aes(result_type, percentage, fill=variety)) +
+  geom_bar(position="stack", stat="identity") +
+  facet_wrap(~workstation) + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1))
+  )
+```
+
+```{r}
+stacked_bar_plot_percent_compare <- function(sample_name){
+  gta_valid |> 
+  filter(sample_code == sample_name) |> 
+  select(workstation, sample_code, obs_id, variety, ends_with("percent"), result_top) |> 
+  pivot_longer(ends_with("percent"), 
+               names_to = "result_type",
+               values_to = "percentage"
+               ) |> 
+  mutate(result_type = str_remove(result_type, "_percent")) |> 
+  ggplot(aes(result_type, percentage, fill=variety)) +
+  geom_bar(position="stack", stat="identity") +
+  ggtitle(sample_name) + 
+  facet_wrap(~workstation) + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+}
+
+stacked_bar_plot_percent_compare("GTAMix1")
+
+pure_sample_codes <- gta_valid |> 
+  filter(str_detect(sample_code,"Pure")) |> 
+  distinct(sample_code) |>
+  arrange(sample_code) |> 
+  pull()
+  
+mix_sample_codes <- gta_valid |> 
+  filter(str_detect(sample_code,"Mix")) |> 
+  distinct(sample_code) |>
+  arrange(sample_code) |> 
+  pull()
+
+map(pure_sample_codes,
+    stacked_bar_plot_percent_compare
+    )
+
+map(mix_sample_codes,
+    stacked_bar_plot_percent_compare
+    )
+```
+
+### Does classified seeds vary across devices? 
+
+```{r}
+gta_valid |> 
+  select(workstation, sample_code, classified_seeds) |> 
+  ggplot(aes(workstation, classified_seeds)) + 
+  # geom_violin() + 
+  geom_point() + 
+  facet_wrap(~sample_code) +
+  coord_flip() +
+  theme(
+    axis.text.x = element_text(angle = 50, hjust = 1))
+  ) 
+```
+
