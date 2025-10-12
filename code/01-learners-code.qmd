@@ -14,6 +14,7 @@ library(here)
 library(readxl)
 library(janitor)
 library(tidyverse)
+library(patchwork)
 ```
 
 ### Load raw data
@@ -275,6 +276,67 @@ gta_valid |>
 
 #### Efficacy in identification and consistency across devices
 
+##### Single station - pure sample
+
+```{r}
+gtapure6_percent <- gta_valid |> 
+  filter(sample_code == "GTAPure6",
+         workstation == "Deniliquin"
+         ) |> 
+  select(workstation, sample_code, obs_id, variety, ends_with("percent"), result_top) |> 
+  pivot_longer(ends_with("percent"), 
+               names_to = "result_type",
+               values_to = "percentage"
+               ) |> 
+  mutate(result_type = str_remove(result_type, "_percent"),
+         result_type = fct_relevel(result_type, "predicted", "expected")
+         ) |> 
+  ggplot(aes(result_type, percentage, fill=variety)) +
+  geom_bar(position="stack", stat="identity") +
+  ggtitle("Device: Deniliquin for sample GTAPure6") + 
+  xlab("Result type") + 
+  ylab("Percentage identified (%)") + 
+  coord_flip() +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1))
+  ) 
+
+ggsave(here("outputs/figures/gta_deniliquin_pure6_percent.pdf"), gtapure6_percent, width = 6, height = 5)
+```
+
+##### Single station - mixed sample
+
+```{r}
+# Admixed samples
+gta_valid |> 
+  filter(
+    sample_code == "GTAMix4",
+    workstation == "Piangil"
+         ) |> 
+  select(workstation, sample_code, obs_id, variety, ends_with("percent"), result_top) |> 
+  pivot_longer(ends_with("percent"), 
+               names_to = "result_type",
+               values_to = "percentage"
+               ) |> 
+   mutate(result_type = str_remove(result_type, "_percent"),
+         result_type = fct_relevel(result_type, "predicted", "expected")
+         ) |> 
+  ggplot(aes(result_type, percentage, fill=variety)) +
+  geom_bar(position="stack", stat="identity") +
+  ggtitle("Device Piangil for sample GTAMix4") + 
+  xlab("Result type") + 
+  ylab("Percentage identified (%)") + 
+  coord_flip() +
+  theme_bw() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1))
+  )
+
+ggsave(here("outputs/figures/gta_piangil_pure4_percent.pdf"), width = 6, height = 5)
+```
+
+
 ```{r}
 # Pure sample
 gta_valid |> 
@@ -284,13 +346,22 @@ gta_valid |>
                names_to = "result_type",
                values_to = "percentage"
                ) |> 
-  mutate(result_type = str_remove(result_type, "_percent")) |> 
+  mutate(result_type = str_remove(result_type, "_percent"),
+         result_type = fct_relevel(result_type, "predicted", "expected")
+         ) |> 
   ggplot(aes(result_type, percentage, fill=variety)) +
   geom_bar(position="stack", stat="identity") +
+  ggtitle("GTAPure6") + 
+  xlab("Result type") + 
+  ylab("Percentage identified (%)") + 
+  coord_flip() +
   facet_wrap(~workstation) + 
+  theme_bw() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1))
+    axis.text.x = element_text(angle = 45, hjust = 1)
   )
+
+ggsave(here("outputs/figures/gta_alldevs_pure6_percent.pdf"), width = 6.5, height = 5)
 
 
 # Admixed samples
@@ -301,16 +372,39 @@ gta_valid |>
                names_to = "result_type",
                values_to = "percentage"
                ) |> 
-  mutate(result_type = str_remove(result_type, "_percent")) |> 
+   mutate(result_type = str_remove(result_type, "_percent"),
+         result_type = fct_relevel(result_type, "predicted", "expected")
+         ) |> 
   ggplot(aes(result_type, percentage, fill=variety)) +
   geom_bar(position="stack", stat="identity") +
+  ggtitle("GTAMix4") + 
+  xlab("Result type") + 
+  ylab("Percentage identified (%)") + 
+  coord_flip() +
   facet_wrap(~workstation) + 
+  theme_bw() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1))
+    axis.text.x = element_text(angle = 45, hjust = 1)
   )
+
+ggsave(here("outputs/figures/gta_alldevs_mix4_percent.pdf"), width = 6.5, height = 5)
 ```
 
 ```{r}
+# Retrieve the names of all the pure samples
+pure_sample_codes <- gta_valid |> 
+  filter(str_detect(sample_code,"Pure")) |> 
+  distinct(sample_code) |>
+  arrange(sample_code) |> 
+  pull()
+
+# Retrieve the names of all the mix samples
+mix_sample_codes <- gta_valid |> 
+  filter(str_detect(sample_code,"Mix")) |> 
+  distinct(sample_code) |>
+  arrange(sample_code) |> 
+  pull()
+
 stacked_bar_plot_percent_compare <- function(sample_name){
   gta_valid |> 
   filter(sample_code == sample_name) |> 
@@ -319,38 +413,52 @@ stacked_bar_plot_percent_compare <- function(sample_name){
                names_to = "result_type",
                values_to = "percentage"
                ) |> 
-  mutate(result_type = str_remove(result_type, "_percent")) |> 
+   mutate(result_type = str_remove(result_type, "_percent"),
+         result_type = fct_relevel(result_type, "predicted", "expected")
+         ) |> 
   ggplot(aes(result_type, percentage, fill=variety)) +
   geom_bar(position="stack", stat="identity") +
   ggtitle(sample_name) + 
+  coord_flip() +
   facet_wrap(~workstation) + 
+  theme_bw() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1)
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none",
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
     )
 }
 
-stacked_bar_plot_percent_compare("GTAMix1")
-
-pure_sample_codes <- gta_valid |> 
-  filter(str_detect(sample_code,"Pure")) |> 
-  distinct(sample_code) |>
-  arrange(sample_code) |> 
-  pull()
-  
-mix_sample_codes <- gta_valid |> 
-  filter(str_detect(sample_code,"Mix")) |> 
-  distinct(sample_code) |>
-  arrange(sample_code) |> 
-  pull()
-
+# Make plots for all pure samples
 map(pure_sample_codes,
     stacked_bar_plot_percent_compare
-    )
+    ) |> 
+  wrap_plots()
 
+ggsave(here("outputs/figures/gta_allpure_percent.pdf"), width = 20, height = 15)
+
+# Make plots for all mix samples
 map(mix_sample_codes,
     stacked_bar_plot_percent_compare
-    )
+    ) |> 
+  wrap_plots()
+
+ggsave(here("outputs/figures/gta_allmix_percent.pdf"), width = 20, height = 15)
 ```
+
+
+```{r}
+stacked_bar_plot_percent_compare("GTAPure10")
+
+gta_valid |> 
+  filter(
+    sample_code == "GTAPure10",
+    workstation == "Quambatook"
+    ) |> 
+  count(predicted_percent)
+```
+
 
 ### Does classified seeds vary across devices? 
 
@@ -365,5 +473,47 @@ gta_valid |>
   theme(
     axis.text.x = element_text(angle = 50, hjust = 1))
   ) 
+```
+
+### Difference in expectation and observed
+
+```{r}
+gta_valid |> 
+  filter(str_detect(sample_code, "Mix")) |> 
+  select(workstation, sample_code, obs_id, variety, ends_with("seeds")) |> 
+  mutate(difference_seeds = expected_seeds - predicted_seeds) |> 
+  filter(sample_code == "GTAMix1") |> 
+  ggplot(aes(variety, difference_seeds, colour = variety)) + 
+  geom_hline(yintercept = 0, linetype = 2) +
+  ggtitle("GTAMix1") +
+  geom_jitter() + 
+  geom_text(aes(label = workstation), position = position_jitter(0.1, 0.1), size = 2, colour = "black") + 
+  theme(
+    legend.position = "none"
+  )
+```
+
+```{r}
+difference_in_seed_by_sample <- function(sample_name){
+  gta_valid |> 
+  filter(str_detect(sample_code, "Mix")) |> 
+  select(workstation, sample_code, obs_id, variety, ends_with("seeds")) |> 
+  mutate(difference_seeds = expected_seeds - predicted_seeds) |> 
+  filter(sample_code == sample_name) |> 
+  ggplot(aes(variety, difference_seeds, colour = variety)) + 
+  geom_hline(yintercept = 0, linetype = 2) +
+  ggtitle(sample_name) +
+  geom_jitter() + 
+  geom_text(aes(label = workstation), position = position_jitter(0.15, 0.1), size = 2, colour = "black") + 
+  theme(
+    legend.position = "none"
+  )
+}
+
+difference_in_seed_by_sample("GTAMix2")
+
+map(mix_sample_codes,
+    difference_in_seed_by_sample
+    )
 ```
 

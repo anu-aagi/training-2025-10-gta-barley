@@ -1,0 +1,18 @@
+---
+title: "Training session code: Significance testing"
+format: html
+editor: source
+editor_options: 
+  chunk_output_type: console
+---
+
+### Packages you need
+
+```{r}
+# R packages
+library(here)
+library(readxl)
+library(janitor)
+library(tidyverse)
+library(patchwork)
+```

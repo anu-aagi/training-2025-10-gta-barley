@@ -4,4 +4,6 @@
 .Rproj.user
 .Rhistory
 *.pptx
-~$*
+~$*.xlsx
+outputs/figures/
+
