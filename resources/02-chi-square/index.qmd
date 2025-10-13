@@ -71,7 +71,7 @@ Just one by one
 chi_data |> 
 ggplot(aes(x = x, y = density, colour = factor(df))) +
   geom_line(size = 1.1) +
-  coord_cartesian(ylim = c(0, 0.8)) +
+  coord_cartesian(ylim = c(0, 0.5)) +
   labs(
     title = expression(paste("Chi-square Probability Density Functions")),
     # subtitle = "As degrees of freedom increase, the distribution shifts right and becomes more symmetric",
@@ -79,11 +79,13 @@ ggplot(aes(x = x, y = density, colour = factor(df))) +
     y = "Density",
     colour = "df"
   ) +
-  theme_minimal(base_size = 14) +
+  theme_bw(base_size = 14) +
   theme(
     plot.title = element_text(face = "bold"),
-    legend.position = "top"
+    legend.position = "bottom"
   ) 
+
+ggsave(here("outputs/figures/gta_pdf_allk.pdf"), width = 6, height = 5)
 ```
 
 ```{r}
@@ -94,13 +96,13 @@ ggplot(aes(x = x, y = density, colour = factor(df))) +
   geom_line(size = 1.1) +
   coord_cartesian(ylim = c(0, 0.5)) +
   labs(
-    title = expression(paste("Chi-square Probability Density Functions")),
+    title = expression(paste("Chi-square Probability Density Function")),
     # subtitle = "As degrees of freedom increase, the distribution shifts right and becomes more symmetric",
     x = expression(chi^2~"value"),
     y = "Density",
     colour = "df"
   ) +
-  theme_minimal(base_size = 14) +
+  theme_bw(base_size = 14) +
   theme(
     plot.title = element_text(face = "bold"),
     legend.position = "top"
@@ -111,22 +113,22 @@ ggplot(aes(x = x, y = density, colour = factor(df))) +
 
 
 k_df_plot_fn(k = 1)
+ggsave(here("outputs/figures/gta_pdf_k1.pdf"), width = 6, height = 5)
+
 k_df_plot_fn(k = 2)
+ggsave(here("outputs/figures/gta_pdf_k2.pdf"), width = 6, height = 5)
+
 k_df_plot_fn(k = 4)
+ggsave(here("outputs/figures/gta_pdf_k4.pdf"), width = 6, height = 5)
+
 k_df_plot_fn(k = 8)
+ggsave(here("outputs/figures/gta_pdf_k8.pdf"), width = 6, height = 5)
+
 k_df_plot_fn(k = 12)
+ggsave(here("outputs/figures/gta_pdf_k12.pdf"), width = 6, height = 5)
 
 
 
-# Below are not printing them sequentially
-
-# dfs <- distinct(chi_data, df)
-# 
-# walk(dfs,
-#     ~print(k_df_plot_fn(.x))
-# )
-# 
-# map(dfs, ~ print(k_df_plot_fn(.x)))
 ```
 
 
