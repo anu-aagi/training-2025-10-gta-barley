@@ -8,70 +8,34 @@ editor_options:
 
 ### Packages you need
 
-```{r}
+```{r setup}
+#| include: false
 # R packages
 library(here)
-library(readxl)
-library(janitor)
 library(tidyverse)
-library(patchwork)
 ```
 
-```{r}
-# Sequence of chi-square values
-x <- seq(0, 25, length.out = 500)
+### Set up data
 
-# Degrees of freedom to compare
+```{r}
+# Create a sequence of x values (chi-square values)
+x <- seq(0, 20, length.out = 500)
+
+# Choose degrees of freedom to illustrate
 dfs <- c(1, 2, 4, 8, 12)
 
-# Generate data
+# Create data frame of densities for each df
 chi_data <- expand.grid(x = x, df = dfs) %>%
   mutate(density = dchisq(x, df))
 ```
 
-
-```{r}
-ggplot(chi_data, aes(x = x, y = density, colour = factor(df))) +
-  geom_line(size = 1.1) +
-  labs(
-    title = expression(paste("Chi-square Probability Density Functions")),
-    subtitle = "As degrees of freedom increase, the distribution shifts right and becomes more symmetric",
-    x = expression(chi^2~"value"),
-    y = "Density",
-    colour = "df"
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "top"
-  )
-```
-
-```{r}
-df_val <- 4
-x_val <- 2
-
-shade_data <- data.frame(x = seq(x_val, 20, length.out = 200))
-shade_data$y <- dchisq(shade_data$x, df_val)
-
-ggplot() +
-  stat_function(fun = dchisq, args = list(df = df_val), colour = "steelblue", size = 1.2) +
-  geom_area(data = shade_data, aes(x = x, y = y), fill = "tomato", alpha = 0.5) +
-  labs(
-    title = bquote("Chi-square(" * .(df_val) * ") distribution, shaded p-value for " ~ chi^2 == .(x_val)),
-    x = expression(chi^2),
-    y = "Density"
-  ) +
-  theme_minimal(base_size = 14)
-
-```
-
+### Facetted
 
 ```{r}
 # Faceted plot
 ggplot(chi_data, aes(x = x, y = density)) +
-  geom_line(color = "steelblue", linewidth = 1.1) +
-  facet_wrap(~ df, nrow = 2, scales = "free_y") +
+  geom_line(color = "steelblue", size = 1.1) +
+  facet_wrap(~ df, nrow = 2) +
   labs(
     title = expression("Chi-square Probability Density Functions for Different Degrees of Freedom"),
     subtitle = "As df increases, the distribution becomes more symmetric and shifts right",
@@ -87,64 +51,77 @@ ggplot(chi_data, aes(x = x, y = density)) +
 
 ```
 
-```{r}
-ggplot(chi_data, aes(x = x, y = density)) +
-  geom_line(color = "steelblue", size = 1.1) +
-  facet_wrap(~ df, nrow = 2, scales = "free_y") +
-  labs(
-    title = expression("Chi-square Probability Density Functions for Different Degrees of Freedom"),
-    subtitle = "As df increases, the distribution becomes more symmetric and shifts right",
-    x = expression(chi^2~"value"),
-    y = "Density"
-  ) +
-  coord_cartesian(ylim = c(0, 0.8)) +   # 👈 sets the y-axis view range
-  theme_minimal(base_size = 14)
-```
+
+### PDF of Chi squared - one by one
 
 ```{r}
-k_df_plot_fn <- function(k){
-  chi_data |>
-    filter(df == k) |>
-    ggplot(aes(x = x, y = density, colour = factor(df))) +
-    geom_line(size = 1.1) +
-    coord_cartesian(ylim = c(0, 0.5)) +
-    labs(
-      title = expression(paste("Chi-square Probability Density Function")),
-      x = expression(chi^2~"value"),
-      y = "Density",
-      colour = "df"
-    ) +
-    theme_minimal(base_size = 14) +
-    theme(
-      plot.title = element_text(face = "bold"),
-      legend.position = "top"
-    )
-}
-
-# Try it
-k_df_plot_fn(k = 1)
-
-```
-
-```{r}
-ggplot(chi_data, aes(x = x, y = density, colour = factor(df))) +
+chi_pdf_by_k_plot <- function(k){
+ p <-  chi_data |> 
+  filter(df == k) |> 
+ggplot(aes(x = x, y = density, colour = factor(df))) +
   geom_line(size = 1.1) +
+  coord_cartesian(ylim = c(0, 0.5)) +
   labs(
-    title = expression(paste("Chi-square Probability Density Functions")),
-    subtitle = "As degrees of freedom increase, the distribution shifts right and becomes more symmetric",
+    title = expression(paste("Chi-square Probability Density Function")),
     x = expression(chi^2~"value"),
     y = "Density",
     colour = "df"
   ) +
-  theme_minimal(base_size = 14) +
+  theme_bw(base_size = 14) +
   theme(
     plot.title = element_text(face = "bold"),
     legend.position = "top"
-  )
+  ) 
+ 
+ print(p)
+}
+
+
+chi_pdf_by_k_plot(k = 1)
+ggsave(here("outputs/figures/gta_pdf_k1.pdf"), width = 6, height = 5)
+
+chi_pdf_by_k_plot(k = 2)
+ggsave(here("outputs/figures/gta_pdf_k2.pdf"), width = 6, height = 5)
+
+chi_pdf_by_k_plot(k = 4)
+ggsave(here("outputs/figures/gta_pdf_k4.pdf"), width = 6, height = 5)
+
+chi_pdf_by_k_plot(k = 8)
+ggsave(here("outputs/figures/gta_pdf_k8.pdf"), width = 6, height = 5)
+
+chi_pdf_by_k_plot(k = 12)
+ggsave(here("outputs/figures/gta_pdf_k12.pdf"), width = 6, height = 5)
+
+
+
 ```
 
+### All degrees of freedom
+
 ```{r}
-k_df_plot_fn <- function(k, x_val = NULL, y_max = 0.5) {
+chi_data |> 
+ggplot(aes(x = x, y = density, colour = factor(df))) +
+  geom_line(size = 1.1) +
+  coord_cartesian(ylim = c(0, 0.5)) +
+  labs(
+    title = expression(paste("Chi-square Probability Density Functions")),
+    # subtitle = "As degrees of freedom increase, the distribution shifts right and becomes more symmetric",
+    x = expression(chi^2~"value"),
+    y = "Density",
+    colour = "df"
+  ) +
+  theme_bw(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "bottom"
+  ) 
+
+ggsave(here("outputs/figures/gta_pdf_allk.pdf"), width = 6, height = 5)
+```
+
+
+```{r}
+chi_pdf_by_k_test_statistic_region <- function(k, x_val = NULL, y_max = 0.5) {
   
   # Filter for one df
   data_df <- chi_data |> filter(df == k)
@@ -154,7 +131,7 @@ k_df_plot_fn <- function(k, x_val = NULL, y_max = 0.5) {
     geom_line(colour = "steelblue", size = 1.2) +
     coord_cartesian(ylim = c(0, y_max)) +
     labs(
-      title = bquote("Chi-square PDF for df = " ~ .(k)),
+      title = bquote("Chi-square probability density function for df = " ~ .(k)),
       x = expression(chi^2~"value"),
       y = "Density"
     ) +
@@ -173,7 +150,7 @@ k_df_plot_fn <- function(k, x_val = NULL, y_max = 0.5) {
                 fill = "tomato", alpha = 0.5) +
       geom_vline(xintercept = x_val, linetype = "dashed", colour = "grey40") +
       annotate("text", x = x_val, y = y_max * 0.9, 
-               label = paste0("x = ", x_val), 
+               label = paste0("test statistic = ", x_val), 
                hjust = -0.1, colour = "grey40") +
       labs(subtitle = "Shaded area = P(X ≥ x)")
   }
@@ -181,6 +158,41 @@ k_df_plot_fn <- function(k, x_val = NULL, y_max = 0.5) {
   print(p)
 }
 
-k_df_plot_fn(2, 8.5)
+
+chi_pdf_by_k_test_statistic_region(k = 1, x_val = 0.875)
+```
+
+```{r}
+# Observed counts (from your mini box)
+chocs <- c(
+  Flake       = 1,
+  Dairy_Milk  = 2,
+  Caramello   = 1,
+  Cherry_Ripe = 3,
+  Crunchie    = 1
+)
+
+# Expected proportions if all 5 types are equally likely
+expected_probs <- rep(1/length(chocs), length(chocs))
+
+# Perform chi-square goodness-of-fit test
+chisq.test(x = chocs, p = expected_probs)
+
+```
+
+```{r}
+tibble(observed = chocs,
+       expected = 0.2) |> 
+  mutate(chi_tstat = (observed - expected)^2 / expected) |> 
+  colSums()
+
+```
+
+```{r}
+p_value <- 1 - pchisq(65, df = 4)
+p_value
+
+p_value <- pchisq(65, df = 4, lower.tail = FALSE)
+p_value
 ```
 

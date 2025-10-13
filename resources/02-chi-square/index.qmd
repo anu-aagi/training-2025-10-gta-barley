@@ -16,6 +16,8 @@ library(tidyverse)
 library(kableExtra)
 ```
 
+### Set up data
+
 ```{r}
 # Create a sequence of x values (chi-square values)
 x <- seq(0, 20, length.out = 500)
@@ -26,24 +28,9 @@ dfs <- c(1, 2, 4, 8, 12)
 # Create data frame of densities for each df
 chi_data <- expand.grid(x = x, df = dfs) %>%
   mutate(density = dchisq(x, df))
-
-# Plot using ggplot
-ggplot(chi_data, aes(x = x, y = density, colour = factor(df))) +
-  geom_line(size = 1.1) +
-  labs(
-    title = expression(paste("Chi-square Probability Density Functions")),
-    subtitle = "As degrees of freedom increase, the distribution shifts right and becomes more symmetric",
-    x = expression(chi^2~"value"),
-    y = "Density",
-    colour = "df"
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "top"
-  ) 
-
 ```
+
+### Facetted
 
 ```{r}
 # Faceted plot
@@ -65,7 +52,52 @@ ggplot(chi_data, aes(x = x, y = density)) +
 
 ```
 
-Just one by one 
+
+### PDF of Chi squared - one by one
+
+```{r}
+chi_pdf_by_k_plot <- function(k){
+ p <-  chi_data |> 
+  filter(df == k) |> 
+ggplot(aes(x = x, y = density, colour = factor(df))) +
+  geom_line(size = 1.1) +
+  coord_cartesian(ylim = c(0, 0.5)) +
+  labs(
+    title = expression(paste("Chi-square Probability Density Function")),
+    x = expression(chi^2~"value"),
+    y = "Density",
+    colour = "df"
+  ) +
+  theme_bw(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "top"
+  ) 
+ 
+ print(p)
+}
+
+
+chi_pdf_by_k_plot(k = 1)
+ggsave(here("outputs/figures/gta_pdf_k1.pdf"), width = 6, height = 5)
+
+chi_pdf_by_k_plot(k = 2)
+ggsave(here("outputs/figures/gta_pdf_k2.pdf"), width = 6, height = 5)
+
+chi_pdf_by_k_plot(k = 4)
+ggsave(here("outputs/figures/gta_pdf_k4.pdf"), width = 6, height = 5)
+
+chi_pdf_by_k_plot(k = 8)
+ggsave(here("outputs/figures/gta_pdf_k8.pdf"), width = 6, height = 5)
+
+chi_pdf_by_k_plot(k = 12)
+ggsave(here("outputs/figures/gta_pdf_k12.pdf"), width = 6, height = 5)
+
+
+
+```
+
+### All degrees of freedom
 
 ```{r}
 chi_data |> 
@@ -88,52 +120,9 @@ ggplot(aes(x = x, y = density, colour = factor(df))) +
 ggsave(here("outputs/figures/gta_pdf_allk.pdf"), width = 6, height = 5)
 ```
 
-```{r}
-k_df_plot_fn <- function(k){
- p <-  chi_data |> 
-  filter(df == k) |> 
-ggplot(aes(x = x, y = density, colour = factor(df))) +
-  geom_line(size = 1.1) +
-  coord_cartesian(ylim = c(0, 0.5)) +
-  labs(
-    title = expression(paste("Chi-square Probability Density Function")),
-    # subtitle = "As degrees of freedom increase, the distribution shifts right and becomes more symmetric",
-    x = expression(chi^2~"value"),
-    y = "Density",
-    colour = "df"
-  ) +
-  theme_bw(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "top"
-  ) 
- 
- print(p)
-}
-
-
-k_df_plot_fn(k = 1)
-ggsave(here("outputs/figures/gta_pdf_k1.pdf"), width = 6, height = 5)
-
-k_df_plot_fn(k = 2)
-ggsave(here("outputs/figures/gta_pdf_k2.pdf"), width = 6, height = 5)
-
-k_df_plot_fn(k = 4)
-ggsave(here("outputs/figures/gta_pdf_k4.pdf"), width = 6, height = 5)
-
-k_df_plot_fn(k = 8)
-ggsave(here("outputs/figures/gta_pdf_k8.pdf"), width = 6, height = 5)
-
-k_df_plot_fn(k = 12)
-ggsave(here("outputs/figures/gta_pdf_k12.pdf"), width = 6, height = 5)
-
-
-
-```
-
 
 ```{r}
-k_df_plot_fn <- function(k, x_val = NULL, y_max = 0.5) {
+chi_pdf_by_k_test_statistic_region <- function(k, x_val = NULL, y_max = 0.5) {
   
   # Filter for one df
   data_df <- chi_data |> filter(df == k)
@@ -171,7 +160,7 @@ k_df_plot_fn <- function(k, x_val = NULL, y_max = 0.5) {
 }
 
 
-k_df_plot_fn(k = 1, x_val = 0.875)
+chi_pdf_by_k_test_statistic_region(k = 1, x_val = 0.875)
 ```
 
 ```{r}
@@ -180,7 +169,7 @@ chocs <- c(
   Flake       = 1,
   Dairy_Milk  = 2,
   Caramello   = 1,
-  Cherry_Ripe = 2,
+  Cherry_Ripe = 3,
   Crunchie    = 1
 )
 
@@ -194,21 +183,17 @@ chisq.test(x = chocs, p = expected_probs)
 
 ```{r}
 tibble(observed = chocs,
-       expected = 1.6) |> 
-  mutate(chi_tstat = (observed - expected)^2 / expected)
+       expected = 0.2) |> 
+  mutate(chi_tstat = (observed - expected)^2 / expected) |> 
+  colSums()
 
 ```
 
 ```{r}
-p_value <- 1 - pchisq(0.85714, df = 4)
+p_value <- 1 - pchisq(65, df = 4)
 p_value
 
-p_value <- pchisq(0.85714, df = 4, lower.tail = FALSE)
+p_value <- pchisq(65, df = 4, lower.tail = FALSE)
 p_value
-```
-
-
-```{r}
-
 ```
 
