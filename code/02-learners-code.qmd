@@ -39,8 +39,9 @@ chi_pdf_by_k_test_statistic_region <- function(
   k, 
   x_val = NULL, 
   y_max = 0.5, 
-  stitle = "Shaded area = P(X ≥ x)", 
+  stitle = "Shaded area = P(X^2 ≥ x)", 
   p_value = NULL, 
+  alpha = NULL, 
   show_title = TRUE
 ) {
   
@@ -68,7 +69,7 @@ chi_pdf_by_k_test_statistic_region <- function(
       plot.title = element_text(face = "bold")
     )
   
-  # Add shading if x_val is provided
+  # 1️⃣ Add shaded region for observed test statistic
   if (!is.null(x_val)) {
     shade_data <- data.frame(x = seq(x_val, max(data_df$x), length.out = 200))
     shade_data$y <- dchisq(shade_data$x, k)
@@ -78,7 +79,7 @@ chi_pdf_by_k_test_statistic_region <- function(
                 fill = "tomato", alpha = 0.5) +
       geom_vline(xintercept = x_val, linetype = "dashed", colour = "grey40") +
       annotate("text", x = x_val, y = y_max * 0.9, 
-               label = paste0("Chi-squared test statistic = ", x_val), 
+               label = paste0("Chi-squared test statistic = ", round(x_val,2)), 
                hjust = -0.1, colour = "grey40") +
       labs(subtitle = stitle)
     
@@ -90,19 +91,45 @@ chi_pdf_by_k_test_statistic_region <- function(
                  y = y_max * 0.8, 
                  label = paste0("p-value = ", signif(p_value, 3)),
                  hjust = -0.1,
-                 colour = "black",
+                 colour = "tomato",
                  fontface = "italic")
     }
+  }
+  
+  # 2️⃣ Add shaded critical region for alpha (significance level)
+  if (!is.null(alpha)) {
+    crit_val <- qchisq(1 - alpha, df = k)
+    
+    crit_data <- data.frame(x = seq(crit_val, max(data_df$x), length.out = 200))
+    crit_data$y <- dchisq(crit_data$x, k)
+    
+    p <- p +
+      geom_area(data = crit_data, aes(x = x, y = y),
+                fill = "purple", alpha = 0.3) +
+      geom_vline(xintercept = crit_val, colour = "purple", linetype = "dotted") +
+      annotate("text", 
+               x = crit_val, 
+               y = y_max * 0.7, 
+               label = paste0("Critical value (α = ", alpha, ") = ", round(crit_val, 2)),
+               hjust = -0.1, colour = "purple", fontface = "italic")
   }
   
   print(p)
 }
 
-chi_pdf_by_k_test_statistic_region(k = 8, x_val = 10) +
+chi_pdf_by_k_test_statistic_region(
+  k = 8,
+  alpha = 0.05,
+  y_max = 0.15,
+  p_value = pchisq(12.5, df = 8, lower.tail = FALSE),
+  stitle = "Red area = observed p-value, purple = significance region",
+  show_title = TRUE
+) +
   coord_cartesian(c(0,30))
 
-ggsave(here("outputs/figures/gta_pdf_k8_x10.pdf"), width = 6, height = 5)
+ggsave(here("outputs/figures/gta_pdf_k8_critical_region.pdf"), width = 6, height = 5)
 ```
+
 
 ### Exercise 
 
@@ -125,7 +152,8 @@ anu_cbr <- read_sheet("https://docs.google.com/spreadsheets/d/1th1g7rIm8CnAasC4Z
 
 # Combine together
 workshop_data <- bind_rows(anu_wg,uoa, anu_cbr) |> 
-  relocate(location, .before = brand_of_chocolate) 
+  relocate(location, .before = brand_of_chocolate) |> 
+  mutate(location = fct_relevel(location, "ANU Wagga Wagga", "Uni of Adelaide", "ANU Canberra"))
 
 ```
 
