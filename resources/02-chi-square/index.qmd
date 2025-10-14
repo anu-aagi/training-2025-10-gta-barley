@@ -10,10 +10,7 @@ editor_options:
 #| include: false
 # R packages
 library(here)
-library(readxl)
-library(janitor)
 library(tidyverse)
-library(kableExtra)
 ```
 
 ### Set up data
@@ -136,7 +133,7 @@ chi_pdf_by_k_test_statistic_region <- function(k, x_val = NULL, y_max = 0.5) {
       x = expression(chi^2~"value"),
       y = "Density"
     ) +
-    theme_minimal(base_size = 14) +
+    theme_bw(base_size = 14) +
     theme(
       plot.title = element_text(face = "bold")
     )
@@ -151,7 +148,7 @@ chi_pdf_by_k_test_statistic_region <- function(k, x_val = NULL, y_max = 0.5) {
                 fill = "tomato", alpha = 0.5) +
       geom_vline(xintercept = x_val, linetype = "dashed", colour = "grey40") +
       annotate("text", x = x_val, y = y_max * 0.9, 
-               label = paste0("test statistic = ", x_val), 
+               label = paste0("Chi-squared test statistic = ", x_val), 
                hjust = -0.1, colour = "grey40") +
       labs(subtitle = "Shaded area = P(X ≥ x)")
   }
@@ -160,7 +157,9 @@ chi_pdf_by_k_test_statistic_region <- function(k, x_val = NULL, y_max = 0.5) {
 }
 
 
-chi_pdf_by_k_test_statistic_region(k = 1, x_val = 0.875)
+chi_pdf_by_k_test_statistic_region(k = 8, x_val = 10)
+
+ggsave(here("outputs/figures/gta_pdf_k8_x10.pdf"), width = 6, height = 5)
 ```
 
 ```{r}

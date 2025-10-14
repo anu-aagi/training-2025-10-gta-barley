@@ -13,129 +13,57 @@ editor_options:
 # R packages
 library(here)
 library(tidyverse)
+library(googlesheets4)
+library(janitor)
+library(patchwork)
 ```
 
 ### Set up data
 
 ```{r}
 # Create a sequence of x values (chi-square values)
-x <- seq(0, 20, length.out = 500)
+x <- seq(0, 120, length.out = 500)
 
 # Choose degrees of freedom to illustrate
-dfs <- c(1, 2, 4, 8, 12)
+dfs <- seq(1:12)
 
 # Create data frame of densities for each df
-chi_data <- expand.grid(x = x, df = dfs) %>%
+chi_data <- expand.grid(x = x, df = dfs) |> 
   mutate(density = dchisq(x, df))
 ```
 
-### Facetted
+### Is what we observed extreme enough to cause a fuss?
 
 ```{r}
-# Faceted plot
-ggplot(chi_data, aes(x = x, y = density)) +
-  geom_line(color = "steelblue", size = 1.1) +
-  facet_wrap(~ df, nrow = 2) +
-  labs(
-    title = expression("Chi-square Probability Density Functions for Different Degrees of Freedom"),
-    subtitle = "As df increases, the distribution becomes more symmetric and shifts right",
-    x = expression(chi^2~"value"),
-    y = "Density"
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    strip.text = element_text(size = 12, face = "bold"),
-    panel.grid.minor = element_blank()
-  )
-
-```
-
-
-### PDF of Chi squared - one by one
-
-```{r}
-chi_pdf_by_k_plot <- function(k){
- p <-  chi_data |> 
-  filter(df == k) |> 
-ggplot(aes(x = x, y = density, colour = factor(df))) +
-  geom_line(size = 1.1) +
-  coord_cartesian(ylim = c(0, 0.5)) +
-  labs(
-    title = expression(paste("Chi-square Probability Density Function")),
-    x = expression(chi^2~"value"),
-    y = "Density",
-    colour = "df"
-  ) +
-  theme_bw(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "top"
-  ) 
- 
- print(p)
-}
-
-
-chi_pdf_by_k_plot(k = 1)
-ggsave(here("outputs/figures/gta_pdf_k1.pdf"), width = 6, height = 5)
-
-chi_pdf_by_k_plot(k = 2)
-ggsave(here("outputs/figures/gta_pdf_k2.pdf"), width = 6, height = 5)
-
-chi_pdf_by_k_plot(k = 4)
-ggsave(here("outputs/figures/gta_pdf_k4.pdf"), width = 6, height = 5)
-
-chi_pdf_by_k_plot(k = 8)
-ggsave(here("outputs/figures/gta_pdf_k8.pdf"), width = 6, height = 5)
-
-chi_pdf_by_k_plot(k = 12)
-ggsave(here("outputs/figures/gta_pdf_k12.pdf"), width = 6, height = 5)
-
-
-
-```
-
-### All degrees of freedom
-
-```{r}
-chi_data |> 
-ggplot(aes(x = x, y = density, colour = factor(df))) +
-  geom_line(size = 1.1) +
-  coord_cartesian(ylim = c(0, 0.5)) +
-  labs(
-    title = expression(paste("Chi-square Probability Density Functions")),
-    # subtitle = "As degrees of freedom increase, the distribution shifts right and becomes more symmetric",
-    x = expression(chi^2~"value"),
-    y = "Density",
-    colour = "df"
-  ) +
-  theme_bw(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "bottom"
-  ) 
-
-ggsave(here("outputs/figures/gta_pdf_allk.pdf"), width = 6, height = 5)
-```
-
-
-```{r}
-chi_pdf_by_k_test_statistic_region <- function(k, x_val = NULL, y_max = 0.5) {
+chi_pdf_by_k_test_statistic_region <- function(
+  k, 
+  x_val = NULL, 
+  y_max = 0.5, 
+  stitle = "Shaded area = P(X ≥ x)", 
+  p_value = NULL, 
+  show_title = TRUE
+) {
   
   # Filter for one df
   data_df <- chi_data |> filter(df == k)
+  
+  # Title logic
+  main_title <- if (show_title) {
+    bquote("Chi-square probability density function for df = " ~ .(k))
+  } else {
+    NULL
+  }
   
   # Base plot
   p <- ggplot(data_df, aes(x = x, y = density)) +
     geom_line(colour = "steelblue", size = 1.2) +
     coord_cartesian(ylim = c(0, y_max)) +
     labs(
-      title = bquote("Chi-square probability density function for df = " ~ .(k)),
+      title = main_title,
       x = expression(chi^2~"value"),
       y = "Density"
     ) +
-    theme_minimal(base_size = 14) +
+    theme_bw(base_size = 14) +
     theme(
       plot.title = element_text(face = "bold")
     )
@@ -150,49 +78,91 @@ chi_pdf_by_k_test_statistic_region <- function(k, x_val = NULL, y_max = 0.5) {
                 fill = "tomato", alpha = 0.5) +
       geom_vline(xintercept = x_val, linetype = "dashed", colour = "grey40") +
       annotate("text", x = x_val, y = y_max * 0.9, 
-               label = paste0("test statistic = ", x_val), 
+               label = paste0("Chi-squared test statistic = ", x_val), 
                hjust = -0.1, colour = "grey40") +
-      labs(subtitle = "Shaded area = P(X ≥ x)")
+      labs(subtitle = stitle)
+    
+    # Optional p-value label
+    if (!is.null(p_value)) {
+      p <- p +
+        annotate("text", 
+                 x = x_val, 
+                 y = y_max * 0.8, 
+                 label = paste0("p-value = ", signif(p_value, 3)),
+                 hjust = -0.1,
+                 colour = "black",
+                 fontface = "italic")
+    }
   }
   
   print(p)
 }
 
+chi_pdf_by_k_test_statistic_region(k = 8, x_val = 10) +
+  coord_cartesian(c(0,30))
 
-chi_pdf_by_k_test_statistic_region(k = 1, x_val = 0.875)
+ggsave(here("outputs/figures/gta_pdf_k8_x10.pdf"), width = 6, height = 5)
 ```
+
+### Exercise 
 
 ```{r}
-# Observed counts (from your mini box)
-chocs <- c(
-  Flake       = 1,
-  Dairy_Milk  = 2,
-  Caramello   = 1,
-  Cherry_Ripe = 3,
-  Crunchie    = 1
-)
+# URL
+anu_wg <- read_sheet("https://docs.google.com/spreadsheets/d/1th1g7rIm8CnAasC4ZW63fgBe2uYE0Q7uDpPZyC67IP0/edit?gid=0#gid=0",
+           range = "B1:E11") |> 
+  clean_names() |>
+  mutate(location = "ANU Wagga Wagga")
 
-# Expected proportions if all 5 types are equally likely
-expected_probs <- rep(1/length(chocs), length(chocs))
+uoa <- read_sheet("https://docs.google.com/spreadsheets/d/1th1g7rIm8CnAasC4ZW63fgBe2uYE0Q7uDpPZyC67IP0/edit?gid=0#gid=0",
+           range = "B15:E25") |> 
+  clean_names() |> 
+  mutate(location = "Uni of Adelaide")
 
-# Perform chi-square goodness-of-fit test
-chisq.test(x = chocs, p = expected_probs)
+anu_cbr <- read_sheet("https://docs.google.com/spreadsheets/d/1th1g7rIm8CnAasC4ZW63fgBe2uYE0Q7uDpPZyC67IP0/edit?gid=0#gid=0",
+           range = "B29:E39") |> 
+  clean_names() |>
+  mutate(location = "ANU Canberra")
+
+# Combine together
+workshop_data <- bind_rows(anu_wg,uoa, anu_cbr) |> 
+  relocate(location, .before = brand_of_chocolate) 
 
 ```
+
 
 ```{r}
-tibble(observed = chocs,
-       expected = 0.2) |> 
-  mutate(chi_tstat = (observed - expected)^2 / expected) |> 
-  colSums()
+overall_data <- workshop_data |> 
+  summarise(
+    chi_sq_statistic = sum(discrepancy) |> round(2),
+    p_value = pchisq(chi_sq_statistic, df = 8, lower.tail = FALSE)
+    ) 
 
+  
+chi_pdf_by_k_test_statistic_region(k = 8,
+                                   y_max = 0.12,
+                                   x_val = overall_data$chi_sq_statistic,
+                                   p_value = overall_data$p_value
+                                   ) + 
+  coord_cartesian(c(0,110))
 ```
+
 
 ```{r}
-p_value <- 1 - pchisq(65, df = 4)
-p_value
-
-p_value <- pchisq(65, df = 4, lower.tail = FALSE)
-p_value
+grouped_data <- workshop_data |> 
+  group_by(location) |> 
+  summarise(chi_sq_statistic = sum(discrepancy) |> round(2),
+            p_value = pchisq(chi_sq_statistic, df = 8, lower.tail = FALSE)
+    ) 
+  
+pmap(
+  .l = grouped_data,
+  .f = function(location, chi_sq_statistic, p_value){
+    chi_pdf_by_k_test_statistic_region(k = 8, 
+                                       x_val = chi_sq_statistic, 
+                                       y_max = 0.12, 
+                                       stitle = location,
+                                       p_value = p_value,
+                                       show_title = FALSE)
+  } ) |>  
+  wrap_plots()
 ```
-
