@@ -19,7 +19,6 @@ project
     -   `01-ida/` materials used in module 1
     -   `02-chi-square/` materials used in module 2
     -   `03-glm/` materials used in module 3
--   `outputs/figures` contains the figures used in the slides
 -   `outputs/report` contains the final report
 
 We also use a [collaborative Google
