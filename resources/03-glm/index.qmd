@@ -1069,7 +1069,7 @@ Plot.plot({
 
 In a GLM, we can test the null hypothesis $H_0: \beta_1 = 0$ against the alternative $H_1: \beta_1 \neq 0.$ Under $H_0$,
 $$D_R - D_M \sim \chi^2_1,$$
-where $D_R$ is the deviance of the **restricted model** (excluding $\beta_1$) and $D_M$ is the deviance of the **full model**. The degree of freedom of the $\chi^2$ correspond to the number of parameter restrictions imposed.
+where $D_R$ is the deviance of the **restricted model** (excluding $\beta_1$) and $D_M$ is the deviance of the **unrestricted model**. The degree of freedom of the $\chi^2$ correspond to the number of parameter restrictions imposed.
 
 
 
