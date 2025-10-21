@@ -164,25 +164,24 @@ chi_pdf_by_k_test_statistic_region(
   coord_cartesian(c(0,30))
 
 ggsave(here("outputs/figures/gta_pdf_k8_reject_null.pdf"), width = 8, height = 5, device = cairo_pdf)
- ```
-
+```
 
 ### Exercise 
 
 ```{r}
 # URL
 anu_wg <- read_sheet("https://docs.google.com/spreadsheets/d/1th1g7rIm8CnAasC4ZW63fgBe2uYE0Q7uDpPZyC67IP0/edit?gid=0#gid=0",
-           range = "B1:E11") |> 
+           range = "B1:E9", sheet = "Enter counts here!") |> 
   clean_names() |>
   mutate(location = "ANU Wagga Wagga")
 
 uoa <- read_sheet("https://docs.google.com/spreadsheets/d/1th1g7rIm8CnAasC4ZW63fgBe2uYE0Q7uDpPZyC67IP0/edit?gid=0#gid=0",
-           range = "B15:E25") |> 
+           range = "B13:E21", sheet = "Enter counts here!") |> 
   clean_names() |> 
   mutate(location = "Uni of Adelaide")
 
 anu_cbr <- read_sheet("https://docs.google.com/spreadsheets/d/1th1g7rIm8CnAasC4ZW63fgBe2uYE0Q7uDpPZyC67IP0/edit?gid=0#gid=0",
-           range = "B29:E39") |> 
+           range = "B25:E33", sheet = "Enter counts here!") |> 
   clean_names() |>
   mutate(location = "ANU Canberra")
 
@@ -190,7 +189,6 @@ anu_cbr <- read_sheet("https://docs.google.com/spreadsheets/d/1th1g7rIm8CnAasC4Z
 workshop_data <- bind_rows(anu_wg,uoa, anu_cbr) |> 
   relocate(location, .before = brand_of_chocolate) |> 
   mutate(location = fct_relevel(location, "ANU Wagga Wagga", "Uni of Adelaide", "ANU Canberra"))
-
 ```
 
 
