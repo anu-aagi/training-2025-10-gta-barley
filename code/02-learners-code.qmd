@@ -208,7 +208,7 @@ chi_pdf_by_k_test_statistic_region(k = 8,
                                    show_title = FALSE,
                                    stitle = "Overall data for entire training session"
                                    ) + 
-  coord_cartesian(c(0,110))
+  coord_cartesian(c(0,30))
 
 ggsave(here("outputs/figures/gta_favourites_combined.pdf"), width = 8, height = 5, device = cairo_pdf)
 ```
