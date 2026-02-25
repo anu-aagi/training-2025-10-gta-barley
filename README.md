@@ -41,6 +41,3 @@ Li](https://researchportalplus.anu.edu.au/en/persons/patrick-li)
 ### Important dates
 
 **Workshop date:** 2025-10-21 Tuesday 1:00 PM - 3:30 PM
-
-**NB** *Please note that this repository must remain **private**, unless
-appropriate measures has been taken to make it public.*
